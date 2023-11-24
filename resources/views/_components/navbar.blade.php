@@ -23,16 +23,21 @@
                 </ul>
                 @auth
                     <div class="d-flex user-logged nav-item dropdown no-arrow">
-                        <a href="#" role="button" data-toggle="dropdown" aria-expanded="false" id="dropdownMenuLink">
+                        <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" id="dropdownMenuLink">
                             Halo, {{Auth::user()->name}}
+                            @if(Auth::user()->avatar)
                             <img src="{{ Auth::user()->avatar }}" class="user-photo" alt="">
+                            @else
+                            <img src="https://ui-avatars.com/api?name=Admin" class="user-photo" alt="user's avatar">
+                            @endif
+
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="right:0; left:auto">
                                 <li>
                                     <a href="#" class="dropdown-item">My Dashboard</a>
                                 </li>
                                 <li>
                                     <a href="#" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit()">Sign Out</a>
-                                    <form method="post" action="{{route('logout')}}" style="display:none" id="logout-form">
+                                    <form method="get" action="{{route('logout')}}" style="display:none" id="logout-form">
                                         <input type="hidden" name="token" value="{{csrf_token()}}">
                                     </form>
                                 </li>

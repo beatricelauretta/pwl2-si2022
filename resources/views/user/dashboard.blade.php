@@ -14,6 +14,7 @@
                 </div>
             </div>
             <div class="row my-5">
+                @include('_components.alert')
                 <table class="table">
                     <tbody>
                         <tr class="align-middle">

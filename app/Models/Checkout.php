@@ -16,6 +16,21 @@ class Checkout extends Model
         'card_id',
         'expired',
         'cvc',
+        'card_number',
         'is_paid',
     ];
+
+    public function setExpiredAttribute($value)
+    {
+        $this->attributes['expired'] = date('Y-m-d', strtotime($value));
+    }
+
+    public function camp(){
+        return $this->belongsTo(Camp::class, 'camp_id');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id');
+    }
+    
 }
