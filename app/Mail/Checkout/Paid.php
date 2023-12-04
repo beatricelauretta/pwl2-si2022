@@ -9,42 +9,35 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AfterCheckout extends Mailable
+class Paid extends Mailable
 {
     use Queueable, SerializesModels;
-    private $checkout;
 
     /**
      * Create a new message instance.
-     * @return void
      */
     public function __construct($checkout)
     {
         $this->checkout = $checkout;
     }
 
-    /**
-     * Create a new message instance.
-     * @return $this
-     */
     public function build()
     {
-        return $this->subject("Register Camp: {$this->checkout->camp->title}")
-        ->markdown('email.checkout.aftercheckout', [
+        return $this->subject('Your Transaction Has Been Confirmed')
+        ->markdown('emails.checkout.paid', [
             'checkout' => $this->checkout
         ]);
     }
-
-
+    
     /**
      * Get the message envelope.
      */
-    // public function envelope(): Envelope
-    // {
-    //     return new Envelope(
-    //         subject: 'After Checkout',
-    //     );
-    // }
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Paid',
+        );
+    }
 
     /**
      * Get the message content definition.
@@ -52,7 +45,7 @@ class AfterCheckout extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.checkout.afterCheckout',
+            markdown: 'emails.checkout.paid',
         );
     }
 

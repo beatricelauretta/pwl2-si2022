@@ -6,7 +6,7 @@ Hi {{$checkout->user->name}},
 Please see the payment instructions by clicking the button below!
 
 @component('mail::button', ['url' => route('user.checkout.invoice', $checkout->id)])
-Login Here
+Login here
 @endcomponent
 
 Thanks,<br>
