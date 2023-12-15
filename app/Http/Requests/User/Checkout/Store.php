@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Requests\User\Checkout;
+
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-
 
 class Store extends FormRequest
 {
@@ -18,17 +18,17 @@ class Store extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, mixed>
      */
     public function rules()
     {
         $expiredValidation = date('Y-m', time());
         return [
-            'name' =>'required',
-            'email'=>'required|email|unique:users,email,'.Auth::id().',id',
-            'occupation'=> 'required|string',
-            'phone'=>'required|string',
-            'address'=>'required|string',
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . Auth::id() . ',id',
+            'occupation' => 'required|string',
+            'phone' => 'required|string',
+            'address' => 'required|string',
         ];
     }
 }

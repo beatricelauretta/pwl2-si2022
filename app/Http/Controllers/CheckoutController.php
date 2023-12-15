@@ -8,7 +8,7 @@ use Illuminate\Routing\Controller as BaseController;
 use App\Http\Requests\User\Checkout\Store;
 use App\Mail\Checkout\AfterCheckout;
 use App\Models\Checkout;
-use App\models\Camp;
+use App\Models\Camp;
 use App\Models\User;
 use Auth;
 use Mail;
@@ -21,9 +21,10 @@ class CheckoutController extends Controller
     {
         Midtrans\Config::$serverKey     = env('MIDTRANS_SERVER_KEY');
         Midtrans\Config::$isProduction  = env('MIDTRANS_IS_PRODUCTION');
-        Midtrans\Config::$isSanitized   = env('MIDTRANS_IS_SANITIZED');
+        Midtrans\Config::$isSanitized   = env('MIDTRANS_IS SANITIZED');
         Midtrans\Config::$is3ds         = env('MIDTRANS_IS_3DS');
     }
+
     public function create(Request $request, Camp $camp)
     {
         if ($camp->isRegistered) {
@@ -47,19 +48,20 @@ class CheckoutController extends Controller
 
             // update user data
             $user = Auth::user();
-            $user->email = $data['email'];
-            $user->name = $data['name'];
-            $user->occupation = $data['occupation'];
-            $user->phone = $data['phone'];
-            $user->address = $data['address'];
+            $user->email        = $data['email'];
+            $user->name         = $data['name'];
+            $user->occupation   = $data['occupation'];
+            $user->phone        = $data['phone'];
+            $user->address      = $data['address'];
             $user->save();
 
             // create checkout
-            $checkout = Checkout::create($data);
+            $checkout   = Checkout::create($data);
             $snap_setup = $this->getSnapRedirect($checkout);
             if($snap_setup['status']){
                 //sending notification via email
                 Mail::to(Auth::user()->email)->send(new AfterCheckout($checkout));
+                DB::commit();
             }else{
                 // abort DB transaction
                 DB::rollBack();
@@ -72,12 +74,8 @@ class CheckoutController extends Controller
             DB::rollBack();
             return redirect()->back()->withErrors(['msg' => $ex->getMessage()]);
         }
-        return redirect(route('checkout.success'));
-    }
 
-    public function success()
-    {
-        return view('checkout.success');
+        return redirect(route('checkout.success'));
     }
 
     public function getSnapRedirect(Checkout $checkout){
@@ -86,29 +84,29 @@ class CheckoutController extends Controller
 
         $checkout->midtrans_booking_code = $orderId;
 
-        $transaction_details    = [
+        $transaction_details = [
             'order_id'          => $orderId,
             'gross_amount'      => $price,
         ];
 
-        $item_details   = [
-            'id'        => $orderId,
-            'price'     => $price,
-            'quantity'  => 1,
-            'name'      => "Payment for {$checkout->camp->title} Camp",
+        $item_details[]      = [
+            'id'                => $orderId,
+            'price'             => $price,
+            'quantity'          => 1,
+            'name'              => "Payment for {$checkout->camp->title} Camp",
         ];
 
-        $userData           = [
-            'first_name'    => $checkout->user->name,
-            'last_name'     => "",
-            'address'       => $checkout->user->address,
-            'city'          => "",
-            'postal_code'   => "",
-            'phone'         => $checkout->user->phone,
-            'country_code'  => "IDN",
+        $userData            = [
+            'first_name'        => $checkout->user->name,
+            'last_name'         => "",
+            'address'           => $checkout->user->address,
+            'city'              => "",
+            'postal_code'       => "",
+            'phone'             => $checkout->user->phone,
+            'country_code'      => "IDN",
         ];
-        
-        $customer_details = [
+
+        $customer_details    = [
             'first_name'        => $checkout->user->name,
             'last_name'         => "",
             'email'             => $checkout->user->email,
@@ -116,16 +114,16 @@ class CheckoutController extends Controller
             'billing_address'   => $userData,
             'shipping_address'  => $userData,
         ];
-        
-        $midtrans_params = [
-            'transaction_details'   => $transaction_details,
-            'customer_details'      => $customer_details,
-            'item_details'          => $item_details,
+
+        $midtrans_params     = [
+            'transaction_details' => $transaction_details,
+            'customer_details'    => $customer_details,
+            'item_details'        => $item_details,
         ];
         
         try{
+            //get snap payment page URL
             $paymentUrl = Midtrans\Snap::createTransaction($midtrans_params)->redirect_url;
-            var_dump($paymentUrl);
             $checkout->midtrans_url = $paymentUrl;
             $checkout->save();
             return array('status' => true, 'msg' => "");
@@ -143,16 +141,16 @@ class CheckoutController extends Controller
         $checkout_id        = explode('-', $notif->order_id)[0];
         $checkout           = Checkout::find($checkout_id);
 
-        if($transaction_status == 'capture') {
+        if($transaction_status == 'capture'){
             if($fraud == 'challenge'){
                 $checkout->payment_status = 'pending';
-            }else if ($fraud == 'accept'){
+            }else if($fraud == 'accept'){
                 $checkout->payment_status = 'paid';
             }
         }else if($transaction_status == 'cancel'){
             if($fraud == 'challenge'){
                 $checkout->payment_status = 'failed';
-            }else if ($fraud == 'accept'){
+            }else if($fraud == 'accept'){
                 $checkout->payment_status = 'failed';
             }
         }else if($transaction_status == 'deny'){
@@ -168,4 +166,10 @@ class CheckoutController extends Controller
         $checkout->save();
         return view('checkout/success');
     }
+
+    public function success()
+    {
+        return view('checkout.success');
+    }
+
 }
